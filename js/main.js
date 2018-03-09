@@ -33,7 +33,7 @@ function loadMovies(){
 
                 votingInfo.push([apiData.results[i].title]);
 
-                var movieDiv = $("<div></div>",{'class': 'movie','id':'movie'+i}).appendTo("#movieWrapper")
+                var movieDiv = $("<div></div>",{'class': 'movie','id':'movie'+i, 'aria-label':apiData.results[i].title}).appendTo("#movieWrapper")
                     .append($('<img>',{'src':  apiData.results[i].thumbnail.path + "." + apiData.results[i].thumbnail.extension}));
 
                     $("<div class='info-div' id='info" + i +"'><b>Título:</b> " + apiData.results[i].title +
