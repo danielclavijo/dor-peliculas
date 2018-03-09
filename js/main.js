@@ -50,8 +50,10 @@ function loadMovies(){
                     $clicked.toggle("slow");
                 });
                 $(document).keydown((event) => {
+                    if(event.which == 9 || event.keycode == 9){
                     movieIndex++;
-                });
+                    }
+                                    });
                 $(document).keydown((event) => {
                     if(event.which == 13 || event.keycode == 13){
                         
