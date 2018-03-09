@@ -50,8 +50,12 @@ function loadMovies(){
                     $clicked.toggle("slow");
                 });
                 $(document).keydown((event) => {
+                    movieIndex++;
+                });
+                $(document).keydown((event) => {
                     if(event.which == 13 || event.keycode == 13){
-                        var id = $(this).attr('id').slice(-1);
+                        
+                        var id = movieIndex;
 
                     var page = $("<div class='vote-page'><p><b>Votar por: </b>" + apiData.results[id].title + "</p>").appendTo("#movieWrapper");
                     $("#closeButton").show();
