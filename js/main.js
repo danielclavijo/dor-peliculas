@@ -1,9 +1,12 @@
 var apiData = [];
 var votingInfo = [];
-var movieIndex = 0;
 var $loading = $("#spinnerDiv").hide();
 var chart;
 var data;
+var movieIndex = 0;
+var tabIndex = 0;
+var leerChart = "";
+var voteCondition = 0;
 var options = {
     title: 'Votos por película',
     is3d : 'true',
@@ -11,9 +14,9 @@ var options = {
 }
 
 $(document).ready(function(){
-    
+
     buttonListener();
-    
+
     votingInfo.push(["Nombre","Votos"]);
 
     loadMovies();
@@ -35,7 +38,7 @@ function loadMovies(){
 
                 votingInfo.push([apiData.results[i].title]);
 
-                var movieDiv = $("<div></div>",{'class': 'movie','id':'movie'+i, 'aria-label':apiData.results[i].title,'tabindex':i+1}).appendTo("#movieWrapper")
+                var movieDiv = $("<div></div>",{'class': 'movie','id':'movie'+i,'aria-label':apiData.results[i].title,'tabindex':i}).appendTo("#movieWrapper")
                     .append($('<img>',{'src':  apiData.results[i].thumbnail.path + "." + apiData.results[i].thumbnail.extension}));
 
                     $("<div class='info-div' id='info" + i +"'><b>Título:</b> " + apiData.results[i].title +
@@ -50,19 +53,7 @@ function loadMovies(){
                     $(".movie-data").not($clicked).hide();
                     $clicked.toggle("slow");
                 });
-                
-                    //$("#closeButton").appendTo(page);
 
-                    $("#closeButton").click(function(){closeVoting();});
-                    $("#pieChart").click(function(){drawPieChart();});
-                    $("#barChart").click(function(){drawBarChart();});
-
-
-                    $("#loginForm").show();
-
-                    page.toggle("slow");
-
-                    }
                 $(movieButton).click(function(){
 
                     var id = $(this).attr('id').slice(-1);
@@ -76,11 +67,13 @@ function loadMovies(){
                     $("#pieChart").appendTo(page).show();
                     $("#barChart").appendTo(page).show();
                     $("#closeButton").appendTo(page).show();
+                    $("#closeButton").attr('tabindex','4');
 
                     $("#loginForm").appendTo(page);
 
-                    var boton = $("<img class='svg-icon' src='img/vote.svg'>").attr('id', id).appendTo(page);
-
+                    //var boton = $("<img class='svg-icon' src='img/vote.svg' aria-label='Guardar Votación' tabindex='" + movieIndex + 4 + "'>").attr('id', id).appendTo(page);
+                    var boton = $("#guardarVoto");
+                    voteCondition = 1;
                     boton.click(function(){
 
                         closeVoting();
@@ -175,62 +168,111 @@ function drawBarChart(){
     chart.draw(data, options);
 }
 
+
+function buttonListener(){
+    $(document).keydown((event) => {
+        if(event.which == 9 || event.keycode == 9){
+            movieIndex++;
+        }
+    });
+
+
+    $(document).keydown((event) => {
+        var buttonDisplay = $("#guardarVoto").css('display');
+        if((event.which == 13 || event.keycode == 13) && buttonDisplay == "none"){
+            {
+                tabiIndex = movieIndex;
+                var id = movieIndex -1;
+                tabIndex = movieIndex;
+                var page = $("<div class='vote-page'><p><b>Votar por: </b>" + apiData.results[id].title + "</p>").appendTo("#movieWrapper");
+                $("#closeButton").show();
+
+                $("#googleChart").appendTo(page);
+                for (var i = 1; i < votingInfo.length; i++){
+                    leerChart += votingInfo[i][0] +", Votos: " + votingInfo[i][1] + ". ";
+                }
+                $("#googleChart").attr('aria-label',leerChart);
+                $("#googleChart").attr('tabindex','10');
+                //var chartDiv = $("<div id='googleChart'></div>").appendTo(page);
+                drawChart(votingInfo);
+                $("#pieChart").appendTo(page).show();
+                $("#barChart").appendTo(page).show();
+                $("#closeButton").appendTo(page).show();
+                $("#closeButton").attr('tabindex','4');
+                $("#loginForm").appendTo(page);
+                voteCondition = 1;
+                //var boton = $("<img class='svg-icon' src='img/vote.svg' aria-label='Guardar Votación' tabindex='" + movieIndex + 4 + "'>").attr('id', id).appendTo(page);
+
+                var boton = $("#guardarVoto");
+                $("#guardarVoto").show();
+                boton.click(function(){
+
+                    closeVoting();
+
+                    var name = $("#name").val();
+                    var email = $("#email").val();
+                    var address = $("#address").val();
+                    var idMovie = $(this).attr('id');
+                    if(name != "" && email != "" && address != ""){
+                        if(localStorage.votaciones){
+                            if(localStorage.votaciones.indexOf(email) == -1){
+                                alert("Ha votado");
+                                localStorage.votaciones = localStorage.votaciones + name + "," + email + "," + address + "," + idMovie + "##";
+                            }
+                            else {
+                                alert("Ese usuario ya existe");
+                            }
+                        }
+                        else{
+                            alert("Ha votado");
+                            localStorage.votaciones = name + "," + email + "," + address + "," + idMovie + "##";
+                        }
+                    } else{
+                        alert("Datos incorrectos");
+                    }
+
+                });
+                //$("#closeButton").appendTo(page);
+
+                $("#closeButton").click(function(){closeVoting();});
+                $("#pieChart").click(function(){drawPieChart();});
+                $("#barChart").click(function(){drawBarChart();});
+
+
+                $("#loginForm").show();
+
+                page.toggle("slow");
+
+            }
+        } else if((event.which == 13 || event.keycode == 13) && buttonDisplay == "inline" && voteCondition == 1){
+            closeVoting();
+
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var address = $("#address").val();
+            var idMovie = tabIndex - 1;
+            if(name != "" && email != "" && address != ""){
+                if(localStorage.votaciones){
+                    if(localStorage.votaciones.indexOf(email) == -1){
+                        alert("Ha votado");
+                        localStorage.votaciones = localStorage.votaciones + name + "," + email + "," + address + "," + idMovie + "##";
+                    }
+                    else {
+                        alert("Ese usuario ya existe");
+                    }
+                }
+                else{
+                    alert("Ha votado");
+                    localStorage.votaciones = name + "," + email + "," + address + "," + idMovie + "##";
+                }
+            } else{
+                alert("Datos incorrectos");
+            }
+        }
+    })
+
+}
 /*function updateInfo(){
 
 }
 */
-
-
-function buttonListener(){
-    $(document).keydown((event) => {
-                    if(event.which == 9 || event.keycode == 9){
-                    movieIndex++;
-                    }
-                                    });
-                $(document).keydown((event) => {
-                    if(event.which == 13 || event.keycode == 13){
-                        
-                        var id = movieIndex;
-
-                    var page = $("<div class='vote-page'><p><b>Votar por: </b>" + apiData.results[id].title + "</p>").appendTo("#movieWrapper");
-                    $("#closeButton").show();
-
-                    $("#googleChart").appendTo(page);
-                    //var chartDiv = $("<div id='googleChart'></div>").appendTo(page);
-                    drawChart(votingInfo);
-                    $("#pieChart").appendTo(page).show();
-                    $("#barChart").appendTo(page).show();
-                    $("#closeButton").appendTo(page).show();
-
-                    $("#loginForm").appendTo(page);
-
-                    var boton = $("<img class='svg-icon' src='img/vote.svg'>").attr('id', id).appendTo(page);
-
-                    boton.click(function(){
-
-                        closeVoting();
-
-                        var name = $("#name").val();
-                        var email = $("#email").val();
-                        var address = $("#address").val();
-                        var idMovie = $(this).attr('id');
-                        if(name != "" && email != "" && address != ""){
-                            if(localStorage.votaciones){
-                                if(localStorage.votaciones.indexOf(email) == -1){
-                                    localStorage.votaciones = localStorage.votaciones + name + "," + email + "," + address + "," + idMovie + "##";
-                                }
-                                else {
-                                    alert("Ese usuario ya existe");
-                                }
-                            }
-                            else{
-                                localStorage.votaciones = name + "," + email + "," + address + "," + idMovie + "##";
-                            }
-                        } else{
-                            alert("Datos incorrectos");
-                        }
-
-                    });
-        
-                });
-}
