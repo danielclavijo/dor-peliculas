@@ -63,7 +63,6 @@ function loadMovies(){
                     page.toggle("slow");
 
                     }
-                });
                 $(movieButton).click(function(){
 
                     var id = $(this).attr('id').slice(-1);
@@ -232,5 +231,6 @@ function buttonListener(){
                         }
 
                     });
-
+        
+                });
 }
